@@ -55,13 +55,6 @@
                 </div>
             </section>
 
-            <section class="max-w-7xl mx-auto px-4 pt-6 pb-2">
-                <div class="flex items-center justify-between mb-3">
-                    <h3 class="text-lg font-bold text-gray-800 flex items-center gap-1.5">🔥 Featured & Boosted Deals</h3>
-                </div>
-                <div id="boostedSliderContainer" class="flex gap-4 overflow-x-auto no-scrollbar pb-3"></div>
-            </section>
-
             <section class="max-w-7xl mx-auto px-4 py-8">
                 <h3 class="text-2xl font-bold text-gray-800 mb-6">Featured Restaurants</h3>
                 <div id="restaurantContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
@@ -78,10 +71,10 @@
         </div>
 
 
-        <!-- ================= VENDOR PORTAL (LOGIN / REGISTER / DASHBOARD) ================= -->
+        <!-- ================= VENDOR PORTAL ================= -->
         <div id="vendorPortalView" class="max-w-4xl mx-auto px-4 py-10 hidden animate-fade-in">
             
-            <!-- 1. AUTH CONTAINER (Login / Register) -->
+            <!-- Auth Container -->
             <div id="vendorAuthContainer" class="bg-white p-8 rounded-2xl shadow-md border border-gray-100 max-w-md mx-auto">
                 <div class="text-center mb-6">
                     <h3 id="authTitle" class="text-2xl font-bold text-gray-800">Vendor Login</h3>
@@ -91,7 +84,7 @@
                 <div class="space-y-4">
                     <div id="nameFieldContainer" class="hidden">
                         <label class="block text-xs font-semibold text-gray-600 mb-1">Store / Owner Name</label>
-                        <input type="text" id="vendorName" placeholder="Enter name" class="w-full px-4 py-2.5 border rounded-xl text-sm focus:outline-orange-500">
+                        <input type="text" id="vendorName" placeholder="Enter store name" class="w-full px-4 py-2.5 border rounded-xl text-sm focus:outline-orange-500">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 mb-1">Phone Number</label>
@@ -111,7 +104,7 @@
                 </div>
             </div>
 
-            <!-- 2. VENDOR DASHBOARD (Visible After Login) -->
+            <!-- Vendor Dashboard -->
             <div id="vendorDashboardContainer" class="hidden space-y-8">
                 <div class="flex justify-between items-center bg-white p-6 rounded-2xl shadow-sm border-l-4 border-orange-500">
                     <div>
@@ -121,7 +114,7 @@
                     <button onclick="vendorLogout()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-xl text-xs font-semibold transition">Logout</button>
                 </div>
 
-                <!-- Add Menu Item Card with Image Upload -->
+                <!-- Add Menu Item with Image Upload -->
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                     <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2"><i data-lucide="plus-circle" class="text-orange-500"></i> Add New Menu Item</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -182,7 +175,7 @@
     <script>
         lucide.createIcons();
 
-        // --- SUPABASE SETUP ---
+        // --- SUPABASE SETUP (Apnar URL ebong Key ekhane bosiye din) ---
         const SUPABASE_URL = 'https://kdqyompkfmnocpihfzdj.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtkcXlvbXBrZm1ub2NwaWhmemRqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMDkxOTIsImV4cCI6MjEwNDg4NTE5Mn0.4gmwMruyf54ZdXAADEAa9noLZD5JMFyLOzrszUIMVns';
         const { createClient } = supabase;
@@ -195,7 +188,6 @@
         let isRegisterMode = false;
         let loggedInVendor = null;
 
-        // Navigation Switches
         function switchMainView(view) {
             const customerView = document.getElementById('customerView');
             const vendorPortal = document.getElementById('vendorPortalView');
@@ -215,7 +207,6 @@
             lucide.createIcons();
         }
 
-        // --- CUSTOMER SIDE LOGIC ---
         async function loadCustomerData() {
             const { data } = await _supabase.from('restaurants').select('*');
             if(data) restaurants = data;
@@ -242,13 +233,11 @@
             currentRestaurantId = id;
             currentRestaurantName = name;
             document.querySelector('#customerView > section:nth-of-type(1)').classList.add('hidden');
-            document.querySelector('#customerView > section:nth-of-type(2)').classList.add('hidden');
             document.getElementById('restaurantContainer').parentElement.classList.add('hidden');
             
             document.getElementById('menuSection').classList.remove('hidden');
             document.getElementById('restaurantHeader').innerHTML = `<div><h3 class="text-xl font-bold">${name}</h3><p class="text-gray-500 text-sm">Menu Selection</p></div>`;
 
-            // Fetch Menus for this restaurant
             const { data: menus } = await _supabase.from('menus').select('*').eq('restaurant_id', id);
             const menuContainer = document.getElementById('menuContainer');
             menuContainer.innerHTML = '';
@@ -274,7 +263,6 @@
 
         function backToRestaurants() {
             document.querySelector('#customerView > section:nth-of-type(1)').classList.remove('hidden');
-            document.querySelector('#customerView > section:nth-of-type(2)').classList.remove('hidden');
             document.getElementById('restaurantContainer').parentElement.classList.remove('hidden');
             document.getElementById('menuSection').classList.add('hidden');
         }
@@ -318,8 +306,7 @@
             else { alert("Order placed successfully!"); cart = []; updateCartUI(); toggleCart(); }
         }
 
-
-        // --- VENDOR PORTAL LOGIC ---
+        // --- VENDOR AUTH & DASHBOARD LOGIC ---
         function toggleAuthMode() {
             isRegisterMode = !isRegisterMode;
             document.getElementById('authTitle').innerText = isRegisterMode ? "Vendor Registration" : "Vendor Login";
@@ -338,17 +325,15 @@
 
             if(isRegisterMode) {
                 if(!name) { alert("Store name required!"); return; }
-                // Register into vendors table
-                const { data, error } = await _supabase.from('vendors').insert([{
+                const { error } = await _supabase.from('vendors').insert([{
                     name: name,
                     phone: phone,
-                    password: password // Note: In production hash password, plain text used for simple demo
-                }]).select();
+                    password: password
+                }]);
 
                 if(error) alert("Registration Failed: " + error.message);
                 else { alert("Registered successfully! Now login."); toggleAuthMode(); }
             } else {
-                // Login check
                 const { data, error } = await _supabase.from('vendors').select('*').eq('phone', phone).eq('password', password).single();
                 if(error || !data) { alert("Invalid phone or password!"); return; }
 
@@ -378,35 +363,29 @@
             checkVendorSession();
         }
 
-        // Add Menu Item with Image Bucket Upload
         async function addMenuItemToSupabase() {
             const itemName = document.getElementById('menuItemName').value.trim();
             const itemPrice = parseFloat(document.getElementById('menuItemPrice').value);
             const imageFile = document.getElementById('menuItemImageFile').files[0];
 
-            if(!itemName || !isNaN(itemPrice) === false || !imageFile) {
+            if(!itemName || isNaN(itemPrice) || !imageFile) {
                 alert("Please fill all fields and select an image file!");
                 return;
             }
 
-            // 1. Upload image to Supabase Storage Bucket ('images')
             const fileName = `menu_${Date.now()}_${imageFile.name}`;
-            const { data: uploadData, error: uploadError } = await _supabase.storage
-                .from('images')
-                .upload(fileName, imageFile);
+            const { error: uploadError } = await _supabase.storage.from('images').upload(fileName, imageFile);
 
             if(uploadError) {
                 alert("Image Upload Failed: " + uploadError.message);
                 return;
             }
 
-            // 2. Get Public URL
             const { data: urlData } = _supabase.storage.from('images').getPublicUrl(fileName);
             const publicImageUrl = urlData.publicUrl;
 
-            // 3. Insert into 'menus' table
             const { error: insertError } = await _supabase.from('menus').insert([{
-                restaurant_id: 1, // Defaulting to first restaurant or logged in vendor link
+                restaurant_id: 1, 
                 name: itemName,
                 price: itemPrice,
                 image_url: publicImageUrl
@@ -421,7 +400,6 @@
             }
         }
 
-        // Fetch Live Orders for Vendor
         async function fetchVendorOrders() {
             const { data } = await _supabase.from('orders').select('*').order('created_at', { ascending: false });
             renderVendorOrders(data || []);
@@ -456,12 +434,10 @@
             });
         }
 
-        // Realtime listener for incoming orders
-        const sub = _supabase.channel('public:orders').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'orders' }, payload => {
+        _supabase.channel('public:orders').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'orders' }, payload => {
             if(loggedInVendor) fetchVendorOrders();
         }).subscribe();
 
-        // Initial Load
         loadCustomerData();
     </script>
 </body>
