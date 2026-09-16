@@ -44,10 +44,7 @@
                     <i data-lucide="refresh-cw" class="w-4 h-4"></i> Refresh
                 </button>
             </div>
-            
-            <div id="ordersContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Dynamically loaded orders -->
-            </div>
+            <div id="ordersContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         </div>
 
         <!-- ================= SECTION 2: MANAGE RESTAURANT & MENU ================= -->
@@ -75,10 +72,10 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium mb-1">Cover Image URL</label>
-                            <input type="url" id="vImage" required placeholder="https://..." class="w-full px-4 py-2.5 rounded-xl border text-sm focus:outline-orange-500">
+                            <label class="block text-sm font-medium mb-1">Restaurant Cover Image</label>
+                            <input type="file" id="vImageFile" accept="image/*" required class="w-full px-3 py-2 rounded-xl border text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-600 hover:file:bg-orange-100">
                         </div>
-                        <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-xl transition shadow-lg shadow-orange-500/30">Save Restaurant</button>
+                        <button type="submit" id="btnSaveRes" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-xl transition shadow-lg shadow-orange-500/30">Save Restaurant</button>
                     </form>
                 </div>
 
@@ -112,10 +109,10 @@
                             </div>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium mb-1">Food Image URL</label>
-                            <input type="url" id="mImage" required placeholder="https://..." class="w-full px-4 py-2.5 rounded-xl border text-sm focus:outline-orange-500">
+                            <label class="block text-sm font-medium mb-1">Food Image</label>
+                            <input type="file" id="mImageFile" accept="image/*" required class="w-full px-3 py-2 rounded-xl border text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-600 hover:file:bg-orange-100">
                         </div>
-                        <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-xl transition shadow-lg shadow-orange-500/30">Add Food Item</button>
+                        <button type="submit" id="btnSaveMenu" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-xl transition shadow-lg shadow-orange-500/30">Add Food Item</button>
                     </form>
                 </div>
             </div>
@@ -136,7 +133,6 @@
 
         lucide.createIcons();
 
-        // Switch Tabs
         function switchTab(tab) {
             const ordersSection = document.getElementById('ordersSection');
             const manageSection = document.getElementById('manageSection');
@@ -158,17 +154,41 @@
             }
         }
 
-        // Fetch Live Orders from Supabase
+        // Helper function to upload image file to Supabase Storage
+        async function uploadImageToSupabase(fileInputId) {
+            const fileInput = document.getElementById(fileInputId);
+            if (!fileInput.files || fileInput.files.length === 0) return null;
+
+            const file = fileInput.files[0];
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Date.now()}_${Math.random().toString(36.substring(2, 7))}.${fileExt}`;
+            const filePath = `vendor_uploads/${fileName}`;
+
+            const { data, error } = await supabaseClient.storage
+                .from('images')
+                .upload(filePath, file);
+
+            if (error) {
+                throw new Error("Image upload failed: " + error.message);
+            }
+
+            // Get Public URL
+            const { data: publicURLData } = supabaseClient.storage
+                .from('images')
+                getPublicUrl(filePath); // corrected call syntax below
+            
+            // Standard publicUrl retrieval
+            const publicUrl = supabaseClient.storage.from('images').getPublicUrl(filePath).data.publicUrl;
+            return publicUrl;
+        }
+
+        // Fetch Live Orders
         async function fetchOrders() {
             const container = document.getElementById('ordersContainer');
             container.innerHTML = `<p class="col-span-full text-center text-gray-400 py-10">Loading orders...</p>`;
 
             try {
-                const { data, error } = await supabaseClient
-                    .from('orders')
-                    .select('*')
-                    .order('created_at', { ascending: false });
-
+                const { data, error } = await supabaseClient.from('orders').select('*').order('created_at', { ascending: false });
                 if (error) throw error;
 
                 container.innerHTML = '';
@@ -195,8 +215,6 @@
                                 <h4 class="font-bold text-gray-800 text-base mb-1">${order.customer_name}</h4>
                                 <p class="text-xs text-blue-600 font-medium mb-2">📞 ${order.mobile}</p>
                                 <p class="text-xs text-gray-600 mb-2">📍 ${order.address}</p>
-                                ${order.map_link ? `<a href="${order.map_link}" target="_blank" class="text-xs text-orange-500 underline font-semibold block mb-3">🗺️ View Map Pinpoint Link</a>` : ''}
-                                
                                 <div class="bg-gray-50 p-3 rounded-xl mb-4">
                                     <p class="text-xs font-bold text-gray-700 mb-1">Ordered Items:</p>
                                     <ul class="space-y-1">${itemsHtml}</ul>
@@ -211,12 +229,11 @@
                 });
                 lucide.createIcons();
             } catch (err) {
-                console.error("Error fetching orders:", err);
+                console.error(err);
                 container.innerHTML = `<p class="col-span-full text-center text-red-500 py-10">Failed to load orders.</p>`;
             }
         }
 
-        // Load Restaurant Dropdown for Menu Form
         async function loadRestaurantDropdown() {
             const { data } = await supabaseClient.from('restaurants').select('*');
             const select = document.getElementById('mRestaurantId');
@@ -230,46 +247,60 @@
             });
         }
 
-        // Register Restaurant Handler
         async function handleRegisterRestaurant(e) {
             e.preventDefault();
-            const name = document.getElementById('vName').value;
-            const category = document.getElementById('vCategory').value;
-            const image = document.getElementById('vImage').value;
+            const btn = document.getElementById('btnSaveRes');
+            btn.innerText = "Uploading & Saving...";
+            btn.disabled = true;
 
-            const { error } = await supabaseClient.from('restaurants').insert([{ name, category, image, rating: 5.0 }]);
-            if(error) { 
-                alert("Error: " + error.message); 
-            } else { 
-                alert("Restaurant Registered Successfully!"); 
-                document.getElementById('restaurantForm').reset(); 
-                loadRestaurantDropdown(); 
+            try {
+                const name = document.getElementById('vName').value;
+                const category = document.getElementById('vCategory').value;
+                const image = await uploadImageToSupabase('vImageFile');
+
+                const { error } = await supabaseClient.from('restaurants').insert([{ name, category, image, rating: 5.0 }]);
+                if(error) throw error;
+
+                alert("Restaurant Registered Successfully!");
+                document.getElementById('restaurantForm').reset();
+                loadRestaurantDropdown();
+            } catch (err) {
+                alert("Error: " + err.message);
+            } finally {
+                btn.innerText = "Save Restaurant";
+                btn.disabled = false;
             }
         }
 
-        // Add Menu Item Handler
         async function handleAddMenu(e) {
             e.preventDefault();
-            const restaurant_id = parseInt(document.getElementById('mRestaurantId').value);
-            const name = document.getElementById('mName').value;
-            const price = parseFloat(document.getElementById('mPrice').value);
-            const is_boosted = document.getElementById('mBoosted').value === 'true';
-            const image_url = document.getElementById('mImage').value;
+            const btn = document.getElementById('btnSaveMenu');
+            btn.innerText = "Uploading Image...";
+            btn.disabled = true;
 
-            // Fetch restaurant name for convenience
-            const { data: resData } = await supabaseClient.from('restaurants').select('name').eq('id', restaurant_id).single();
-            const restaurant_name = resData ? resData.name : '';
+            try {
+                const restaurant_id = parseInt(document.getElementById('mRestaurantId').value);
+                const name = document.getElementById('mName').value;
+                const price = parseFloat(document.getElementById('mPrice').value);
+                const is_boosted = document.getElementById('mBoosted').value === 'true';
+                const image_url = await uploadImageToSupabase('mImageFile');
 
-            const { error } = await supabaseClient.from('menus').insert([{ restaurant_id, restaurant_name, name, price, is_boosted, image_url }]);
-            if(error) { 
-                alert("Error: " + error.message); 
-            } else { 
-                alert("Menu Item Added Successfully!"); 
-                document.getElementById('menuForm').reset(); 
+                const { data: resData } = await supabaseClient.from('restaurants').select('name').eq('id', restaurant_id).single();
+                const restaurant_name = resData ? resData.name : '';
+
+                const { error } = await supabaseClient.from('menus').insert([{ restaurant_id, restaurant_name, name, price, is_boosted, image_url }]);
+                if(error) throw error;
+
+                alert("Menu Item Added Successfully!");
+                document.getElementById('menuForm').reset();
+            } catch (err) {
+                alert("Error: " + err.message);
+            } finally {
+                btn.innerText = "Add Food Item";
+                btn.disabled = false;
             }
         }
 
-        // Initial Load
         fetchOrders();
     </script>
 </body>
