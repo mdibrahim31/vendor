@@ -3,305 +3,459 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FoodHub - Vendor & Restaurant Portal</title>
-    <!-- Google Fonts, Tailwind CSS & Supabase JS -->
+    <title>FoodHub - Vendor Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body { font-family: 'Poppins', sans-serif; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col justify-between">
 
-    <!-- Navigation Header -->
-    <header class="bg-white shadow-sm sticky top-0 z-30">
-        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-            <h1 class="text-2xl font-bold text-orange-500 flex items-center gap-2">
-                <i data-lucide="store"></i> FoodHub Vendor Portal
-            </h1>
-            <div class="flex items-center gap-3">
-                <button onclick="switchTab('orders')" id="btnOrders" class="bg-orange-500 text-white px-4 py-2 rounded-xl text-sm font-semibold transition shadow-md">Live Orders</button>
-                <button onclick="switchTab('manage')" id="btnManage" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-xl text-sm font-semibold transition">Manage Menu & Shop</button>
+    <!-- AUTH SECTION (Login / Register) -->
+    <div id="authView" class="fixed inset-0 z-50 bg-gray-900/60 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md p-8 rounded-3xl shadow-2xl animate-fade-in">
+            <div class="text-center mb-6">
+                <h2 class="text-3xl font-bold text-orange-500 flex items-center justify-center gap-2">
+                    <i data-lucide="store"></i> FoodHub Vendor
+                </h2>
+                <p id="authSubtitle" class="text-sm text-gray-500 mt-1">Login to manage your restaurant & orders</p>
             </div>
+
+            <!-- Login Form -->
+            <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Email Address</label>
+                    <input type="email" id="logEmail" required class="w-full px-4 py-3 rounded-xl border text-sm focus:outline-orange-500" placeholder="vendor@gmail.com">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Password</label>
+                    <input type="password" id="logPass" required class="w-full px-4 py-3 rounded-xl border text-sm focus:outline-orange-500" placeholder="••••••••">
+                </div>
+                <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-xl transition shadow-lg shadow-orange-500/30">Login</button>
+                <p class="text-center text-sm text-gray-600 mt-4">
+                    Don't have an account? <button type="button" onclick="toggleAuthMode('register')" class="text-orange-500 font-bold hover:underline">Register here</button>
+                </p>
+            </form>
+
+            <!-- Register Form (Hidden by default) -->
+            <form id="registerForm" onsubmit="handleRegister(event)" class="space-y-4 hidden">
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Full Name / Owner Name</label>
+                    <input type="text" id="regName" required class="w-full px-4 py-3 rounded-xl border text-sm focus:outline-orange-500" placeholder="John Doe">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Email Address</label>
+                    <input type="email" id="regEmail" required class="w-full px-4 py-3 rounded-xl border text-sm focus:outline-orange-500" placeholder="vendor@gmail.com">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Password</label>
+                    <input type="password" id="regPass" required class="w-full px-4 py-3 rounded-xl border text-sm focus:outline-orange-500" placeholder="••••••••">
+                </div>
+                <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-xl transition shadow-lg shadow-orange-500/30">Register Vendor</button>
+                <p class="text-center text-sm text-gray-600 mt-4">
+                    Already have an account? <button type="button" onclick="toggleAuthMode('login')" class="text-orange-500 font-bold hover:underline">Login here</button>
+                </p>
+            </form>
         </div>
-    </header>
+    </div>
 
-    <!-- Main Container -->
-    <main class="max-w-7xl mx-auto px-4 py-8 flex-grow w-full">
-
-        <!-- ================= SECTION 1: LIVE ORDERS ================= -->
-        <div id="ordersSection" class="animate-fade-in">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-gray-800">Incoming Customer Orders</h2>
-                <button onclick="fetchOrders()" class="bg-orange-50 hover:bg-orange-100 text-orange-600 px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-1.5 transition">
-                    <i data-lucide="refresh-cw" class="w-4 h-4"></i> Refresh
-                </button>
+    <!-- MAIN DASHBOARD (Hidden until logged in) -->
+    <div id="dashboardView" class="hidden flex-col min-h-screen justify-between">
+        <header class="bg-white shadow-sm sticky top-0 z-30">
+            <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+                <h1 class="text-2xl font-bold text-orange-500 flex items-center gap-2">
+                    <i data-lucide="store"></i> <span id="portalTitle">Vendor Portal</span>
+                </h1>
+                <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
+                    <button onclick="switchTab('orders')" id="btnOrders" class="bg-orange-500 text-white px-4 py-2 rounded-xl text-sm font-semibold transition shadow-md">Live Orders</button>
+                    <button onclick="switchTab('store')" id="btnStore" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-xl text-sm font-semibold transition">Store Setup</button>
+                    <button onclick="switchTab('menu')" id="btnMenu" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-xl text-sm font-semibold transition">Manage Menu</button>
+                    <button onclick="logout()" class="bg-red-50 hover:bg-red-100 text-red-600 px-3 py-2 rounded-xl text-sm font-semibold transition"><i data-lucide="log-out" class="w-4 h-4"></i></button>
+                </div>
             </div>
-            <div id="ordersContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-        </div>
+        </header>
 
-        <!-- ================= SECTION 2: MANAGE RESTAURANT & MENU ================= -->
-        <div id="manageSection" class="hidden animate-fade-in">
-            <h2 class="text-2xl font-bold text-gray-800 mb-6">Restaurant & Menu Management</h2>
+        <main class="max-w-7xl mx-auto px-4 py-8 flex-grow w-full">
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <!-- Register Restaurant Form -->
-                <div class="bg-white p-6 rounded-2xl shadow-sm border">
-                    <h3 class="text-xl font-bold mb-4 text-orange-500 flex items-center gap-2">
-                        <i data-lucide="plus-circle"></i> Register Restaurant
-                    </h3>
-                    <form id="restaurantForm" onsubmit="handleRegisterRestaurant(event)" class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium mb-1">Restaurant Name</label>
-                            <input type="text" id="vName" required placeholder="e.g. Burger King" class="w-full px-4 py-2.5 rounded-xl border text-sm focus:outline-orange-500">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium mb-1">Category</label>
-                            <select id="vCategory" class="w-full px-4 py-2.5 rounded-xl border text-sm focus:outline-orange-500">
-                                <option value="Fast Food">Fast Food</option>
-                                <option value="Italian">Italian</option>
-                                <option value="Desi">Desi / Local</option>
-                                <option value="Dessert">Dessert</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium mb-1">Restaurant Cover Image</label>
-                            <input type="file" id="vImageFile" accept="image/*" required class="w-full px-3 py-2 rounded-xl border text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-600 hover:file:bg-orange-100">
-                        </div>
-                        <button type="submit" id="btnSaveRes" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-xl transition shadow-lg shadow-orange-500/30">Save Restaurant</button>
-                    </form>
+            <!-- 1. LIVE ORDERS SECTION -->
+            <div id="ordersSection" class="animate-fade-in">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Incoming Orders for Your Store</h2>
+                    <button onclick="fetchOrders()" class="bg-orange-50 hover:bg-orange-100 text-orange-600 px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-1.5 transition">
+                        <i data-lucide="refresh-cw" class="w-4 h-4"></i> Refresh
+                    </button>
                 </div>
-
-                <!-- Add Menu Item Form -->
-                <div class="bg-white p-6 rounded-2xl shadow-sm border">
-                    <h3 class="text-xl font-bold mb-4 text-orange-500 flex items-center gap-2">
-                        <i data-lucide="utensils-crossed"></i> Add Food Menu Item
-                    </h3>
-                    <form id="menuForm" onsubmit="handleAddMenu(event)" class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium mb-1">Select Restaurant</label>
-                            <select id="mRestaurantId" required class="w-full px-4 py-2.5 rounded-xl border text-sm focus:outline-orange-500">
-                                <option value="">Loading restaurants...</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium mb-1">Food Name</label>
-                            <input type="text" id="mName" required placeholder="e.g. Cheese Burger" class="w-full px-4 py-2.5 rounded-xl border text-sm focus:outline-orange-500">
-                        </div>
-                        <div class="grid grid-cols-2 gap-2">
-                            <div>
-                                <label class="block text-sm font-medium mb-1">Price ($)</label>
-                                <input type="number" step="0.01" id="mPrice" required placeholder="8.99" class="w-full px-4 py-2.5 rounded-xl border text-sm focus:outline-orange-500">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium mb-1">Boosted Deal?</label>
-                                <select id="mBoosted" class="w-full px-4 py-2.5 rounded-xl border text-sm focus:outline-orange-500">
-                                    <option value="false">No</option>
-                                    <option value="true">Yes</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium mb-1">Food Image</label>
-                            <input type="file" id="mImageFile" accept="image/*" required class="w-full px-3 py-2 rounded-xl border text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-600 hover:file:bg-orange-100">
-                        </div>
-                        <button type="submit" id="btnSaveMenu" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-xl transition shadow-lg shadow-orange-500/30">Add Food Item</button>
-                    </form>
-                </div>
+                <div id="ordersContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
             </div>
+
+            <!-- 2. STORE SETUP SECTION -->
+            <div id="storeSection" class="hidden animate-fade-in max-w-xl mx-auto bg-white p-8 rounded-2xl shadow-sm border">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">Store Configuration</h2>
+                <form id="storeForm" onsubmit="saveStore(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Restaurant Name</label>
+                        <input type="text" id="sName" required class="w-full px-4 py-3 rounded-xl border text-sm focus:outline-orange-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Category</label>
+                        <select id="sCategory" class="w-full px-4 py-3 rounded-xl border text-sm focus:outline-orange-500">
+                            <option value="Fast Food">Fast Food</option>
+                            <option value="Italian">Italian</option>
+                            <option value="Desi">Desi / Local</option>
+                            <option value="Dessert">Dessert</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Store Image</label>
+                        <input type="file" id="sImageFile" accept="image/*" class="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-orange-50 file:text-orange-600">
+                    </div>
+                    <div id="currentStoreImg" class="mt-2"></div>
+                    <button type="submit" id="btnSaveStore" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-xl transition shadow-lg shadow-orange-500/30">Save Restaurant Info</button>
+                </form>
+            </div>
+
+            <!-- 3. MANAGE MENU SECTION -->
+            <div id="menuSection" class="hidden animate-fade-in">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Your Menu Management</h2>
+                    <button onclick="openMenuModal()" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition flex items-center gap-2 shadow-md">
+                        <i data-lucide="plus" class="w-4 h-4"></i> Add New Menu Item
+                    </button>
+                </div>
+                <div id="menuContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            </div>
+        </main>
+
+        <footer class="bg-white border-t py-6 text-center text-gray-500 text-sm">
+            <p>&copy; 2026 FoodHub Vendor Portal. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <!-- MENU ADD/EDIT MODAL -->
+    <div id="menuModal" class="fixed inset-0 z-50 bg-black/50 hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-lg p-6 rounded-3xl shadow-2xl animate-fade-in">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="modalTitle" class="text-xl font-bold text-gray-800">Add Menu Item</h3>
+                <button onclick="closeMenuModal()" class="text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            <form id="menuForm" onsubmit="handleSaveMenu(event)" class="space-y-4">
+                <input type="hidden" id="editMenuId">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Food Name</label>
+                    <input type="text" id="mName" required class="w-full px-4 py-2.5 rounded-xl border text-sm focus:outline-orange-500">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Price ($)</label>
+                        <input type="number" step="0.01" id="mPrice" required class="w-full px-4 py-2.5 rounded-xl border text-sm focus:outline-orange-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Discount (%)</label>
+                        <input type="number" id="mDiscount" value="0" class="w-full px-4 py-2.5 rounded-xl border text-sm focus:outline-orange-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Food Image</label>
+                    <input type="file" id="mImageFile" accept="image/*" class="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-orange-50 file:text-orange-600">
+                </div>
+                <button type="submit" id="btnSaveMenu" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-xl transition shadow-lg shadow-orange-500/30">Save Menu Item</button>
+            </form>
         </div>
-    </main>
+    </div>
 
-    <!-- Footer -->
-    <footer class="bg-white border-t py-6 text-center text-gray-500 text-sm mt-10">
-        <p>&copy; 2026 FoodHub Vendor Dashboard. All rights reserved.</p>
-    </footer>
-
-    <!-- Script Application Logic -->
+    <!-- SCRIPT LOGIC -->
     <script>
-        // Supabase Initialization (Apnar credentials ekhane bosaben)
         const SUPABASE_URL = 'https://kdqyompkfmnocpihfzdj.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtkcXlvbXBrZm1ub2NwaWhmemRqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMDkxOTIsImV4cCI6MjEwNDg4NTE5Mn0.4gmwMruyf54ZdXAADEAa9noLZD5JMFyLOzrszUIMVns';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        lucide.createIcons();
+        let currentVendor = JSON.parse(localStorage.getItem('foodhub_vendor')) || null;
+        let currentRestaurant = null;
 
+        window.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            checkAuth();
+        });
+
+        function checkAuth() {
+            if (currentVendor) {
+                document.getElementById('authView').classList.add('hidden');
+                document.getElementById('dashboardView').classList.remove('hidden');
+                document.getElementById('portalTitle').innerText = `${currentVendor.name}'s Portal`;
+                loadVendorStore();
+            } else {
+                document.getElementById('authView').classList.remove('hidden');
+                document.getElementById('dashboardView').classList.add('hidden');
+            }
+        }
+
+        function toggleAuthMode(mode) {
+            if(mode === 'register') {
+                document.getElementById('loginForm').classList.add('hidden');
+                document.getElementById('registerForm').classList.remove('hidden');
+                document.getElementById('authSubtitle').innerText = "Create a new vendor account";
+            } else {
+                document.getElementById('registerForm').classList.add('hidden');
+                document.getElementById('loginForm').classList.remove('hidden');
+                document.getElementById('authSubtitle').innerText = "Login to manage your restaurant & orders";
+            }
+        }
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('regName').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPass').value;
+
+            const { data, error } = await supabaseClient.from('vendors').insert([{ name, email, password }]).select().single();
+            if(error) { alert("Registration failed: " + error.message); return; }
+
+            localStorage.setItem('foodhub_vendor', JSON.stringify(data));
+            currentVendor = data;
+            alert("Registration successful!");
+            checkAuth();
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('logEmail').value;
+            const password = document.getElementById('logPass').value;
+
+            const { data, error } = await supabaseClient.from('vendors').select('*').eq('email', email).eq('password', password).single();
+            if(error || !data) { alert("Invalid email or password!"); return; }
+
+            localStorage.setItem('foodhub_vendor', JSON.stringify(data));
+            currentVendor = data;
+            alert("Login successful!");
+            checkAuth();
+        }
+
+        function logout() {
+            localStorage.removeItem('foodhub_vendor');
+            currentVendor = null;
+            checkAuth();
+        }
+
+        // Switch Tabs
         function switchTab(tab) {
-            const ordersSection = document.getElementById('ordersSection');
-            const manageSection = document.getElementById('manageSection');
-            const btnOrders = document.getElementById('btnOrders');
-            const btnManage = document.getElementById('btnManage');
+            ['ordersSection', 'storeSection', 'menuSection'].forEach(s => document.getElementById(s).classList.add('hidden'));
+            ['btnOrders', 'btnStore', 'btnMenu'].forEach(b => {
+                document.getElementById(b).className = "bg-gray-100 text-gray-700 px-4 py-2 rounded-xl text-sm font-semibold transition";
+            });
 
             if(tab === 'orders') {
-                ordersSection.classList.remove('hidden');
-                manageSection.classList.add('hidden');
-                btnOrders.className = "bg-orange-500 text-white px-4 py-2 rounded-xl text-sm font-semibold transition shadow-md";
-                btnManage.className = "bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-xl text-sm font-semibold transition";
+                document.getElementById('ordersSection').classList.remove('hidden');
+                document.getElementById('btnOrders').className = "bg-orange-500 text-white px-4 py-2 rounded-xl text-sm font-semibold transition shadow-md";
                 fetchOrders();
-            } else {
-                ordersSection.classList.add('hidden');
-                manageSection.classList.remove('hidden');
-                btnManage.className = "bg-orange-500 text-white px-4 py-2 rounded-xl text-sm font-semibold transition shadow-md";
-                btnOrders.className = "bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-xl text-sm font-semibold transition";
-                loadRestaurantDropdown();
+            } else if(tab === 'store') {
+                document.getElementById('storeSection').classList.remove('hidden');
+                document.getElementById('btnStore').className = "bg-orange-500 text-white px-4 py-2 rounded-xl text-sm font-semibold transition shadow-md";
+            } else if(tab === 'menu') {
+                document.getElementById('menuSection').classList.remove('hidden');
+                document.getElementById('btnMenu').className = "bg-orange-500 text-white px-4 py-2 rounded-xl text-sm font-semibold transition shadow-md";
+                fetchVendorMenu();
             }
         }
 
-        // Helper function to upload image file to Supabase Storage
-        async function uploadImageToSupabase(fileInputId) {
+        async function loadVendorStore() {
+            const { data } = await supabaseClient.from('restaurants').select('*').eq('vendor_id', currentVendor.id).maybeSingle();
+            if(data) {
+                currentRestaurant = data;
+                document.getElementById('sName').value = data.name;
+                document.getElementById('sCategory').value = data.category;
+                if(data.image) {
+                    document.getElementById('currentStoreImg').innerHTML = `<img src="${data.image}" class="w-20 h-20 object-cover rounded-xl mt-2">`;
+                }
+            }
+            fetchOrders();
+        }
+
+        async function uploadImage(fileInputId) {
             const fileInput = document.getElementById(fileInputId);
             if (!fileInput.files || fileInput.files.length === 0) return null;
-
             const file = fileInput.files[0];
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${Date.now()}_${Math.random().toString(36.substring(2, 7))}.${fileExt}`;
-            const filePath = `vendor_uploads/${fileName}`;
-
-            const { data, error } = await supabaseClient.storage
-                .from('images')
-                .upload(filePath, file);
-
-            if (error) {
-                throw new Error("Image upload failed: " + error.message);
-            }
-
-            // Get Public URL
-            const { data: publicURLData } = supabaseClient.storage
-                .from('images')
-                getPublicUrl(filePath); // corrected call syntax below
-            
-            // Standard publicUrl retrieval
-            const publicUrl = supabaseClient.storage.from('images').getPublicUrl(filePath).data.publicUrl;
-            return publicUrl;
+            const fileName = `${Date.now()}_${file.name}`;
+            const { data, error } = await supabaseClient.storage.from('images').upload(`vendor/${fileName}`, file);
+            if (error) throw error;
+            return supabaseClient.storage.from('images').getPublicUrl(`vendor/${fileName}`).data.publicUrl;
         }
 
-        // Fetch Live Orders
-        async function fetchOrders() {
-            const container = document.getElementById('ordersContainer');
-            container.innerHTML = `<p class="col-span-full text-center text-gray-400 py-10">Loading orders...</p>`;
-
-            try {
-                const { data, error } = await supabaseClient.from('orders').select('*').order('created_at', { ascending: false });
-                if (error) throw error;
-
-                container.innerHTML = '';
-                if (!data || data.length === 0) {
-                    container.innerHTML = `<p class="col-span-full text-center text-gray-500 py-10">No orders received yet.</p>`;
-                    return;
-                }
-
-                data.forEach(order => {
-                    let itemsHtml = '';
-                    if(Array.isArray(order.items)) {
-                        order.items.forEach(item => {
-                            itemsHtml += `<li class="text-xs text-gray-600">• ${item.name} (x${item.qty}) - $${(item.price * item.qty).toFixed(2)}</li>`;
-                        });
-                    }
-
-                    container.innerHTML += `
-                        <div class="bg-white p-5 rounded-2xl shadow-sm border flex flex-col justify-between">
-                            <div>
-                                <div class="flex justify-between items-start mb-3">
-                                    <span class="text-xs bg-orange-100 text-orange-600 px-2.5 py-1 rounded-full font-semibold">Order #${order.id}</span>
-                                    <span class="text-xs text-gray-400">${new Date(order.created_at).toLocaleTimeString()}</span>
-                                </div>
-                                <h4 class="font-bold text-gray-800 text-base mb-1">${order.customer_name}</h4>
-                                <p class="text-xs text-blue-600 font-medium mb-2">📞 ${order.mobile}</p>
-                                <p class="text-xs text-gray-600 mb-2">📍 ${order.address}</p>
-                                <div class="bg-gray-50 p-3 rounded-xl mb-4">
-                                    <p class="text-xs font-bold text-gray-700 mb-1">Ordered Items:</p>
-                                    <ul class="space-y-1">${itemsHtml}</ul>
-                                </div>
-                            </div>
-                            <div class="border-t pt-3 flex justify-between items-center">
-                                <span class="font-bold text-gray-800">Total: $${parseFloat(order.total_amount).toFixed(2)}</span>
-                                <span class="text-xs bg-yellow-100 text-yellow-700 px-2.5 py-1 rounded-full font-bold">${order.status || 'Pending'}</span>
-                            </div>
-                        </div>
-                    `;
-                });
-                lucide.createIcons();
-            } catch (err) {
-                console.error(err);
-                container.innerHTML = `<p class="col-span-full text-center text-red-500 py-10">Failed to load orders.</p>`;
-            }
-        }
-
-        async function loadRestaurantDropdown() {
-            const { data } = await supabaseClient.from('restaurants').select('*');
-            const select = document.getElementById('mRestaurantId');
-            select.innerHTML = '';
-            if(!data || data.length === 0) {
-                select.innerHTML = `<option value="">Please register a restaurant first</option>`;
-                return;
-            }
-            data.forEach(res => {
-                select.innerHTML += `<option value="${res.id}">${res.name}</option>`;
-            });
-        }
-
-        async function handleRegisterRestaurant(e) {
+        async function saveStore(e) {
             e.preventDefault();
-            const btn = document.getElementById('btnSaveRes');
-            btn.innerText = "Uploading & Saving...";
-            btn.disabled = true;
-
+            const btn = document.getElementById('btnSaveStore');
+            btn.innerText = "Saving...";
             try {
-                const name = document.getElementById('vName').value;
-                const category = document.getElementById('vCategory').value;
-                const image = await uploadImageToSupabase('vImageFile');
+                const name = document.getElementById('sName').value;
+                const category = document.getElementById('sCategory').value;
+                let image = currentRestaurant ? currentRestaurant.image : '';
+                const newImg = await uploadImage('sImageFile');
+                if(newImg) image = newImg;
 
-                const { error } = await supabaseClient.from('restaurants').insert([{ name, category, image, rating: 5.0 }]);
-                if(error) throw error;
-
-                alert("Restaurant Registered Successfully!");
-                document.getElementById('restaurantForm').reset();
-                loadRestaurantDropdown();
+                if(currentRestaurant) {
+                    await supabaseClient.from('restaurants').update({ name, category, image }).eq('id', currentRestaurant.id);
+                } else {
+                    const { data } = await supabaseClient.from('restaurants').insert([{ vendor_id: currentVendor.id, name, category, image, rating: 5.0 }]).select().single();
+                    currentRestaurant = data;
+                }
+                alert("Store setup saved successfully!");
+                loadVendorStore();
             } catch (err) {
                 alert("Error: " + err.message);
             } finally {
-                btn.innerText = "Save Restaurant";
-                btn.disabled = false;
+                btn.innerText = "Save Restaurant Info";
             }
         }
 
-        async function handleAddMenu(e) {
-            e.preventDefault();
-            const btn = document.getElementById('btnSaveMenu');
-            btn.innerText = "Uploading Image...";
-            btn.disabled = true;
+        // Menu Operations
+        function openMenuModal(isEdit = false, item = null) {
+            document.getElementById('menuModal').classList.remove('hidden');
+            if(isEdit && item) {
+                document.getElementById('modalTitle').innerText = "Edit Menu Item";
+                document.getElementById('editMenuId').value = item.id;
+                document.getElementById('mName').value = item.name;
+                document.getElementById('mPrice').value = item.price;
+                document.getElementById('mDiscount').value = item.discount || 0;
+            } else {
+                document.getElementById('modalTitle').innerText = "Add Menu Item";
+                document.getElementById('menuForm').reset();
+                document.getElementById('editMenuId').value = '';
+            }
+            lucide.createIcons();
+        }
 
+        function closeMenuModal() {
+            document.getElementById('menuModal').classList.add('hidden');
+        }
+
+        async function handleSaveMenu(e) {
+            e.preventDefault();
+            if(!currentRestaurant) { alert("Please setup your store first!"); return; }
+            
+            const btn = document.getElementById('btnSaveMenu');
+            btn.innerText = "Saving...";
             try {
-                const restaurant_id = parseInt(document.getElementById('mRestaurantId').value);
+                const menuId = document.getElementById('editMenuId').value;
                 const name = document.getElementById('mName').value;
                 const price = parseFloat(document.getElementById('mPrice').value);
-                const is_boosted = document.getElementById('mBoosted').value === 'true';
-                const image_url = await uploadImageToSupabase('mImageFile');
+                const discount = parseFloat(document.getElementById('mDiscount').value) || 0;
+                
+                let image_url = '';
+                const newImg = await uploadImage('mImageFile');
+                if(newImg) {
+                    image_url = newImg;
+                } else if(menuId) {
+                    // keep old image if editing and no new file selected
+                    const { data } = await supabaseClient.from('menus').select('image_url').eq('id', menuId).single();
+                    if(data) image_url = data.image_url;
+                }
 
-                const { data: resData } = await supabaseClient.from('restaurants').select('name').eq('id', restaurant_id).single();
-                const restaurant_name = resData ? resData.name : '';
+                if(menuId) {
+                    await supabaseClient.from('menus').update({ name, price, discount, image_url }).eq('id', menuId);
+                } else {
+                    await supabaseClient.from('menus').insert([{ restaurant_id: currentRestaurant.id, name, price, discount, image_url }]);
+                }
 
-                const { error } = await supabaseClient.from('menus').insert([{ restaurant_id, restaurant_name, name, price, is_boosted, image_url }]);
-                if(error) throw error;
-
-                alert("Menu Item Added Successfully!");
-                document.getElementById('menuForm').reset();
+                closeMenuModal();
+                fetchVendorMenu();
+                alert("Menu item saved!");
             } catch (err) {
                 alert("Error: " + err.message);
             } finally {
-                btn.innerText = "Add Food Item";
-                btn.disabled = false;
+                btn.innerText = "Save Menu Item";
             }
         }
 
-        fetchOrders();
+        async function fetchVendorMenu() {
+            const container = document.getElementById('menuContainer');
+            if(!currentRestaurant) {
+                container.innerHTML = `<p class="col-span-full text-center text-gray-500 py-10">Please setup your store in "Store Setup" tab first.</p>`;
+                return;
+            }
+            const { data } = await supabaseClient.from('menus').select('*').eq('restaurant_id', currentRestaurant.id);
+            container.innerHTML = '';
+            if(!data || data.length === 0) {
+                container.innerHTML = `<p class="col-span-full text-center text-gray-500 py-10">No menu items found.</p>`;
+                return;
+            }
+            data.forEach(item => {
+                container.innerHTML += `
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border flex items-center gap-4">
+                        <img src="${item.image_url || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c'}" class="w-20 h-20 rounded-xl object-cover">
+                        <div class="flex-grow">
+                            <h5 class="font-bold text-gray-800">${item.name}</h5>
+                            <p class="text-orange-500 font-semibold text-sm">$${item.price} ${item.discount > fnGetDiscountStr(item.discount)?'': '<span class="text-xs text-green-600 bg-green-50 px-1.5 py-0.5 rounded">(-'+item.discount+'%)</span>':''}</p>
+                            <div class="flex gap-2 mt-2">
+                                <button onclick='openMenuModal(true, ${JSON.stringify(item)})' class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg font-medium">Edit</button>
+                                <button onclick="deleteMenu(${item.id})" class="text-xs bg-red-50 hover:bg-red-100 text-red-600 px-3 py-1.5 rounded-lg font-medium">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+        function fnGetDiscountStr(val) { return val > 0 ? val : 0; }
+
+        async function deleteMenu(id) {
+            if(confirm("Are you sure to delete this item?")) {
+                await supabaseClient.from('menus').delete().eq('id', id);
+                fetchVendorMenu();
+            }
+        }
+
+        // Live Orders for Current Vendor Store
+        async function fetchOrders() {
+            const container = document.getElementById('ordersContainer');
+            if(!currentRestaurant) {
+                container.innerHTML = `<p class="col-span-full text-center text-gray-500 py-10">Setup your store first to see incoming orders.</p>`;
+                return;
+            }
+
+            container.innerHTML = `<p class="col-span-full text-center text-gray-400 py-10">Loading orders...</p>`;
+            const { data } = await supabaseClient.from('orders').select('*').eq('restaurant_id', currentRestaurant.id).order('created_at', { ascending: false });
+
+            container.innerHTML = '';
+            if(!data || data.length === 0) {
+                container.innerHTML = `<p class="col-span-full text-center text-gray-500 py-10">No orders for your store yet.</p>`;
+                return;
+            }
+
+            data.forEach(order => {
+                let itemsHtml = '';
+                if(Array.isArray(order.items)) {
+                    order.items.forEach(i => {
+                        itemsHtml += `<li class="text-xs text-gray-600">• ${i.name} (x${i.qty}) - $${(i.price * i.qty).toFixed(2)}</li>`;
+                    });
+                }
+                container.innerHTML += `
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="text-xs bg-orange-100 text-orange-600 px-2.5 py-1 rounded-full font-semibold">Order #${order.id}</span>
+                                <span class="text-xs text-gray-400">${new Date(order.created_at).toLocaleTimeString()}</span>
+                            </div>
+                            <h4 class="font-bold text-gray-800">${order.customer_name}</h4>
+                            <p class="text-xs text-blue-600 font-medium mb-1">📞 ${order.mobile}</p>
+                            <p class="text-xs text-gray-600 mb-3">📍 ${order.address}</p>
+                            <div class="bg-gray-50 p-3 rounded-xl mb-4">
+                                <p class="text-xs font-bold text-gray-700 mb-1">Items:</p>
+                                <ul class="space-y-1">${itemsHtml}</ul>
+                            </div>
+                        </div>
+                        <div class="border-t pt-3 flex justify-between items-center">
+                            <span class="font-bold text-gray-800">Total: $${parseFloat(order.total_amount).toFixed(2)}</span>
+                            <span class="text-xs bg-yellow-100 text-yellow-700 px-2.5 py-1 rounded-full font-bold">${order.status || 'Pending'}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            lucide.createIcons();
+        }
     </script>
 </body>
 </html>
+
