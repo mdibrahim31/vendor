@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FoodHub - Vendor Portal</title>
+    <title>FoodHub - Vendor Login</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -15,31 +15,10 @@
 
     <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
         <h2 class="text-3xl font-bold text-center text-orange-500 mb-2">FoodHub</h2>
-        <p class="text-center text-gray-500 mb-6 text-sm">Vendor Management Portal</p>
+        <p class="text-center text-gray-500 mb-6 text-sm">Vendor Login Portal</p>
         
-        <!-- Registration Form -->
-        <div id="registerSection" class="space-y-4">
-            <h3 class="text-xl font-bold text-gray-800">Create Account</h3>
-            <div>
-                <label class="block text-xs font-semibold text-gray-600 mb-1">Restaurant Name</label>
-                <input type="text" id="regName" placeholder="e.g. Burger King" class="w-full px-4 py-3 rounded-xl border text-sm focus:outline-orange-500">
-            </div>
-            <div>
-                <label class="block text-xs font-semibold text-gray-600 mb-1">Mobile Number</label>
-                <input type="tel" id="regPhone" placeholder="Enter mobile number" class="w-full px-4 py-3 rounded-xl border text-sm focus:outline-orange-500">
-            </div>
-            <div>
-                <label class="block text-xs font-semibold text-gray-600 mb-1">Password</label>
-                <input type="password" id="regPassword" placeholder="Create a password" class="w-full px-4 py-3 rounded-xl border text-sm focus:outline-orange-500">
-            </div>
-            <button type="button" onclick="handleRegister()" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-xl transition shadow-lg shadow-orange-500/30">Register Restaurant</button>
-            
-            <p class="text-sm text-center text-gray-500 mt-4">Already have an account? <span onclick="switchTab('login')" class="text-orange-500 font-semibold cursor-pointer hover:underline">Login here</span></p>
-        </div>
-
-        <!-- Login Form (Hidden by default) -->
-        <div id="loginSection" class="space-y-4 hidden">
-            <h3 class="text-xl font-bold text-gray-800">Vendor Login</h3>
+        <!-- Login Form Only -->
+        <div class="space-y-4">
             <div>
                 <label class="block text-xs font-semibold text-gray-600 mb-1">Mobile Number</label>
                 <input type="tel" id="loginPhone" placeholder="Enter your mobile number" class="w-full px-4 py-3 rounded-xl border text-sm focus:outline-orange-500">
@@ -49,8 +28,6 @@
                 <input type="password" id="loginPassword" placeholder="Enter your password" class="w-full px-4 py-3 rounded-xl border text-sm focus:outline-orange-500">
             </div>
             <button type="button" onclick="handleLogin()" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-xl transition shadow-lg shadow-orange-500/30">Login to Dashboard</button>
-            
-            <p class="text-sm text-center text-gray-500 mt-4">Don't have an account? <span onclick="switchTab('register')" class="text-orange-500 font-semibold cursor-pointer hover:underline">Register here</span></p>
         </div>
     </div>
 
