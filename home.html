@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoodHub Vendor - Dashboard</title>
+    <!-- Tailwind CSS & Google Fonts & Lucide Icons -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style> body { font-family: 'Poppins', sans-serif; } </style>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col justify-between">
+
+    <!-- Top Navigation Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <h1 class="text-2xl font-bold text-orange-500 flex items-center gap-2">
+                    🍔 FoodHub <span class="text-xs bg-orange-100 text-orange-600 px-2.5 py-1 rounded-full font-medium">Vendor</span>
+                </h1>
+            </div>
+            <div class="flex items-center gap-4">
+                <span class="text-sm font-medium text-gray-600 hidden sm:inline">Burger House & Co.</span>
+                <a href="login.html" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-xl text-sm font-medium transition">Logout</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Dashboard Content -->
+    <main class="max-w-7xl mx-auto px-4 py-8 flex-grow w-full">
+        
+        <!-- Welcome Banner -->
+        <div class="bg-gradient-to-r from-orange-500 to-amber-500 rounded-3xl p-6 md:p-8 text-white shadow-lg mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+                <h2 class="text-2xl md:text-3xl font-bold">Welcome back, Chef! 👋</h2>
+                <p class="text-orange-100 text-sm mt-1">Here is what's happening with your restaurant today.</p>
+            </div>
+            <a href="menu-manage.html" class="bg-white text-orange-600 px-5 py-3 rounded-2xl font-semibold text-sm shadow-md hover:bg-orange-50 transition flex items-center gap-2">
+                <i data-lucide="plus-circle" class="w-4 h-4"></i> Add New Menu Item
+            </a>
+        </div>
+
+        <!-- Quick Stats Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+            <!-- Stat 1 -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
+                <div class="w-14 h-14 bg-orange-50 text-orange-500 rounded-2xl flex items-center justify-center font-bold text-xl">
+                    📦
+                </div>
+                <div>
+                    <p class="text-gray-400 text-sm font-medium">Total Orders</p>
+                    <h3 class="text-2xl font-bold text-gray-800 mt-0.5">24</h3>
+                </div>
+            </div>
+
+            <!-- Stat 2 -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
+                <div class="w-14 h-14 bg-green-50 text-green-500 rounded-2xl flex items-center justify-center font-bold text-xl">
+                    💰
+                </div>
+                <div>
+                    <p class="text-gray-400 text-sm font-medium">Total Earnings</p>
+                    <h3 class="text-2xl font-bold text-gray-800 mt-0.5">$348.50</h3>
+                </div>
+            </div>
+
+            <!-- Stat 3 -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
+                <div class="w-14 h-14 bg-blue-50 text-blue-500 rounded-2xl flex items-center justify-center font-bold text-xl">
+                    🍔
+                </div>
+                <div>
+                    <p class="text-gray-400 text-sm font-medium">Active Menu Items</p>
+                    <h3 class="text-2xl font-bold text-gray-800 mt-0.5">12</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Orders Section -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-bold text-gray-800">Recent Customer Orders</h3>
+                <span class="text-xs bg-orange-100 text-orange-600 px-3 py-1 rounded-full font-semibold">Live Updates</span>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-sm">
+                    <thead>
+                        <tr class="border-b text-gray-400 font-medium">
+                            <th class="pb-3">Order ID</th>
+                            <th class="pb-3">Customer Name</th>
+                            <th class="pb-3">Items</th>
+                            <th class="pb-3">Amount</th>
+                            <th class="pb-3">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y text-gray-600">
+                        <tr>
+                            <td class="py-4 font-semibold text-gray-800">#ORD-101</td>
+                            <td class="py-4">Rahim Uddin</td>
+                            <td class="py-4">Double Burger (2), Fries (1)</td>
+                            <td class="py-4 font-semibold text-gray-800">$23.47</td>
+                            <td class="py-4"><span class="bg-yellow-100 text-yellow-700 text-xs px-2.5 py-1 rounded-full font-medium">Pending</span></td>
+                        </tr>
+                        <tr>
+                            <td class="py-4 font-semibold text-gray-800">#ORD-102</td>
+                            <td class="py-4">Karim Ahmed</td>
+                            <td class="py-4">Chicken Wings (1)</td>
+                            <td class="py-4 font-semibold text-gray-800">$6.99</td>
+                            <td class="py-4"><span class="bg-green-100 text-green-700 text-xs px-2.5 py-1 rounded-full font-medium">Completed</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t py-6 text-center text-gray-500 text-sm mt-10">
+        <p>&copy; 2026 FoodHub Vendor Portal. All rights reserved.</p>
+    </footer>
+
+    <!-- Initialize Lucide Icons -->
+    <script> lucide.createIcons(); </script>
+</body>
+</html>
+
