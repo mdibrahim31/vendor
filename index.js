@@ -13,28 +13,33 @@ async function handleLogin() {
         return;
     }
 
-    // Database theke check korbe phone ebong password mile kina
-    const { data, error } = await supabaseClient
-        .from('vendors')
-        .select('*')
-        .eq('phone', phone)
-        .eq('password', password);
+    try {
+        // Database theke check korbe phone ebong password mile kina
+        const { data, error } = await supabaseClient
+            .from('vendors')
+            .select('*')
+            .eq('phone', phone)
+            .eq('password', password);
 
-    if (error) {
-        alert("Login error: " + error.message);
-        return;
-    }
+        if (error) {
+            alert("Login error: " + error.message);
+            return;
+        }
 
-    if (data && data.length > 0) {
-        const vendor = data[0]; // Ei vendor-er data pawa gelo, jeta tar unique ID-keo carry korbe
-        
-        // Browser localStorage-e vendor data save kore rakha holo
-        localStorage.setItem('currentVendor', JSON.stringify(vendor));
-        
-        alert("Login successful!");
-        // Barabar home.html page-e chole jabe
-        window.location.href = "home.html";
-    } else {
-        alert("Vul mobile number ba password! Athoba adminer kachhe theke account ti toiri kore nin.");
+        if (data && data.length > 0) {
+            const vendor = data[0]; // Ei vendor-er data pawa gelo
+            
+            // Browser localStorage-e vendor data save kore rakha holo
+            localStorage.setItem('currentVendor', JSON.stringify(vendor));
+            
+            alert("Login successful!");
+            // Barabar home.html page-e chole jabe
+            window.location.href = "home.html";
+        } else {
+            alert("Vul mobile number ba password! Athoba Supabase database-e data thik ache kina check korun.");
+        }
+    } catch (err) {
+        console.error("Unexpected error:", err);
+        alert("Kono ekta somossa hoyeche, console check korun.");
     }
 }
