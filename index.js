@@ -1,42 +1,49 @@
-// Supabase Configuration (Apnar project er URL ebong Anon Key ekhane boshaben)
-const SUPABASE_URL = 'https://kdqyompkfmnocpihfzdj.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtkcXlvbXBrZm1ub2NwaWhmemRqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMDkxOTIsImV4cCI6MjEwNDg4NTE5Mn0.4gmwMruyf54ZdXAADEAa9noLZD5JMFyLOzrszUIMVns';
+// Supabase Configuration (Apnar Supabase project er URL and Anon Key ekhane din)
+const SUPABASE_URL = 'YOUR_SUPABASE_URL_HERE';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY_HERE';
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const loginForm = document.getElementById('loginForm');
-const errorMsg = document.getElementById('error-msg');
-const loginBtn = document.getElementById('loginBtn');
-
-loginForm.addEventListener('submit', async (e) => {
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     
     const phone = document.getElementById('phone').value.trim();
     const password = document.getElementById('password').value.trim();
+    const errorMsg = document.getElementById('errorMsg');
+    const loginBtn = document.getElementById('loginBtn');
 
+    errorMsg.style.display = 'none';
     loginBtn.textContent = 'Logging in...';
     loginBtn.disabled = true;
-    errorMsg.style.display = 'none';
 
-    // Supabase theke data match korar query
-    const { data, error } = await supabase
-        .from('vendors')
-        .select('*')
-        .eq('phone', phone)
-        .eq('password', password)
-        .single();
+    try {
+        // Database theke phone ebong password match koranor query
+        const { data, error } = await supabase
+            .from('vendors')
+            .select('*')
+            .eq('phone', phone)
+            .eq('password', password);
 
-    if (error || !data) {
-        // Jodi match na kore
+        console.log("Response Data:", data);
+        console.log("Response Error:", error);
+
+        if (error || !data || data.length === 0) {
+            errorMsg.style.display = 'block';
+            loginBtn.textContent = 'Login to Dashboard';
+            loginBtn.disabled = false;
+        } else {
+            // Login successful
+            const vendor = data[0];
+            localStorage.setItem('vendor_id', vendor.id);
+            localStorage.setItem('vendor_name', vendor.name);
+
+            // Redirect to home page
+            window.location.href = 'home.html';
+        }
+    } catch (err) {
+        console.error("Catch Error:", err);
         errorMsg.style.display = 'block';
         loginBtn.textContent = 'Login to Dashboard';
         loginBtn.disabled = false;
-    } else {
-        // Jodi login successful hoy
-        localStorage.setItem('vendor_id', data.id);
-        localStorage.setItem('vendor_name', data.name);
-
-        // Home page-e redirect kora
-        window.location.href = 'home.html';
     }
 });
