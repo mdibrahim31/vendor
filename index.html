@@ -3,37 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FoodHub - Vendor Login</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>body { font-family: 'Poppins', sans-serif; }</style>
+    <title>FoodHub - Vendor Login Portal</title>
+    <!-- CSS File Link -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body class="bg-gray-50 flex items-center justify-center min-h-screen">
-    
-    <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md mx-4">
-        <h1 class="text-3xl font-bold text-orange-500 text-center mb-2">FoodHub</h1>
-        <p class="text-gray-500 text-center mb-6">Vendor Login Portal</p>
-        
-        <div class="space-y-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Mobile Number</label>
-                <!-- id="loginPhone" etai JavaScript-er sathe connect thakbe -->
-                <input type="text" id="loginPhone" placeholder="Enter mobile number" class="w-full px-4 py-3 rounded-xl border focus:outline-orange-500">
+<body>
+
+    <div class="login-card">
+        <div class="logo-text">FoodHub</div>
+        <div class="subtitle">Vendor Login Portal</div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label>Mobile Number</label>
+                <input type="text" id="phone" placeholder="Enter mobile number" required>
             </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                <!-- id="loginPassword" etai JavaScript-er sathe connect thakbe -->
-                <input type="password" id="loginPassword" placeholder="Enter password" class="w-full px-4 py-3 rounded-xl border focus:outline-orange-500">
+
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="password" placeholder="Enter password" required>
             </div>
-            <!-- onclick="handleLogin()" diye JavaScript function call kora hocche -->
-            <button onclick="handleLogin()" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-xl transition shadow-lg shadow-orange-500/30">
-                Login to Dashboard
-            </button>
-        </div>
+
+            <button type="submit" class="login-btn" id="loginBtn">Login to Dashboard</button>
+            <p id="error-msg">Invalid mobile number or password!</p>
+        </form>
     </div>
 
-    <!-- Supabase JS & Index JS link -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="index.js"></script>
+    <!-- JS File Link (defer use kora hoyeche jate HTML load howar por script kaj kore) -->
+    <script src="login.js" defer></script>
+
 </body>
 </html>
