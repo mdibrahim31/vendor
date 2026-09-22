@@ -8,7 +8,7 @@ const vendorId = localStorage.getItem('vendor_id');
 
 // Jodi vendor login na kore direct home.html-e ashe, tahole login page-e pathiye dibe
 if (!vendorId) {
-    window.location.href = 'login.html';
+    window.location.href = 'index.html;
 }
 
 // Page load hole vendor er data fetch kora
@@ -88,6 +88,6 @@ document.getElementById('menuForm').addEventListener('submit', async (e) => {
 // Logout handler
 document.getElementById('logoutBtn').addEventListener('click', () => {
     localStorage.clear();
-    window.location.href = 'login.html';
+    window.location.href = 'index.html';
 });
 
