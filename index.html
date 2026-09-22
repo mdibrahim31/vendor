@@ -4,124 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FoodHub - Vendor Login</title>
-    <!-- Supabase CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background-color: #f4f5f7;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
-        .login-card {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            width: 100%;
-            max-width: 400px;
-        }
-
-        .logo-area {
-            text-align: center;
-            margin-bottom: 25px;
-        }
-
-        .logo-area h1 {
-            color: #ff6600;
-            font-size: 28px;
-            margin-bottom: 5px;
-        }
-
-        .logo-area p {
-            color: #666;
-            font-size: 14px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
-            font-size: 14px;
-            color: #444;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            outline: none;
-            font-size: 15px;
-            transition: border-color 0.3s;
-        }
-
-        .form-group input:focus {
-            border-color: #ff6600;
-        }
-
-        .btn {
-            background: #ff6600;
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 16px;
-            cursor: pointer;
-            width: 100%;
-            transition: background 0.3s;
-        }
-
-        .btn:hover {
-            background: #e55c00;
-        }
-
-        .error-msg {
-            color: #ff3333;
-            font-size: 13px;
-            text-align: center;
-            margin-top: 15px;
-            display: none;
-        }
-    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Poppins', sans-serif; }</style>
 </head>
-<body>
-
-    <div class="login-card">
-        <div class="logo-area">
-            <h1>FoodHub</h1>
-            <p>Vendor Login Portal</p>
+<body class="bg-gray-50 flex items-center justify-center min-h-screen">
+    
+    <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md mx-4">
+        <h1 class="text-3xl font-bold text-orange-500 text-center mb-2">FoodHub</h1>
+        <p class="text-gray-500 text-center mb-6">Vendor Login Portal</p>
+        
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Mobile Number</label>
+                <!-- id="loginPhone" etai JavaScript-er sathe connect thakbe -->
+                <input type="text" id="loginPhone" placeholder="Enter mobile number" class="w-full px-4 py-3 rounded-xl border focus:outline-orange-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                <!-- id="loginPassword" etai JavaScript-er sathe connect thakbe -->
+                <input type="password" id="loginPassword" placeholder="Enter password" class="w-full px-4 py-3 rounded-xl border focus:outline-orange-500">
+            </div>
+            <!-- onclick="handleLogin()" diye JavaScript function call kora hocche -->
+            <button onclick="handleLogin()" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-xl transition shadow-lg shadow-orange-500/30">
+                Login to Dashboard
+            </button>
         </div>
-
-        <form id="loginForm">
-            <div class="form-group">
-                <label>Mobile Number</label>
-                <input type="text" id="phone" placeholder="e.g. 01882208531" required>
-            </div>
-            <div class="form-group">
-                <label>Password</label>
-                <input type="password" id="password" placeholder="Enter password" required>
-            </div>
-            <button type="submit" class="btn" id="loginBtn">Login to Dashboard</button>
-            <div class="error-msg" id="errorMsg">Invalid mobile number or password!</div>
-        </form>
     </div>
 
-    <!-- Index JS File Connection -->
-    <script src="index.js" defer></script>
+    <!-- Supabase JS & Index JS link -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="index.js"></script>
 </body>
 </html>
+
