@@ -3,127 +3,175 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FoodHub Vendor - Dashboard</title>
-    <!-- Tailwind CSS & Google Fonts & Lucide Icons -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style> body { font-family: 'Poppins', sans-serif; } </style>
-</head>
-<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col justify-between">
+    <title>FoodHub - Vendor Dashboard</title>
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-    <!-- Top Navigation Header -->
-    <header class="bg-white shadow-sm sticky top-0 z-30">
-        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <h1 class="text-2xl font-bold text-orange-500 flex items-center gap-2">
-                    🍔 FoodHub <span class="text-xs bg-orange-100 text-orange-600 px-2.5 py-1 rounded-full font-medium">Vendor</span>
-                </h1>
-            </div>
-            <div class="flex items-center gap-4">
-                <span class="text-sm font-medium text-gray-600 hidden sm:inline">Burger House & Co.</span>
-                <a href="login.html" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-xl text-sm font-medium transition">Logout</a>
-            </div>
-        </div>
+        body {
+            background-color: #f4f5f7;
+            color: #333;
+        }
+
+        header {
+            background: #ffffff;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ff6600;
+        }
+
+        .logout-btn {
+            background: #ff3333;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            margin-bottom: 25px;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            font-size: 20px;
+            color: #444;
+        }
+
+        .shop-info p {
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        .btn {
+            background: #ff6600;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #e55c00;
+        }
+
+        .status-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">FoodHub Dashboard</div>
+        <button class="logout-btn" id="logoutBtn">Logout</button>
     </header>
 
-    <!-- Main Dashboard Content -->
-    <main class="max-w-7xl mx-auto px-4 py-8 flex-grow w-full">
-        
-        <!-- Welcome Banner -->
-        <div class="bg-gradient-to-r from-orange-500 to-amber-500 rounded-3xl p-6 md:p-8 text-white shadow-lg mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div>
-                <h2 class="text-2xl md:text-3xl font-bold">Welcome back, Chef! 👋</h2>
-                <p class="text-orange-100 text-sm mt-1">Here is what's happening with your restaurant today.</p>
+    <div class="container">
+        <!-- Shop Status & Profile Card -->
+        <div class="card">
+            <h2>Shop Control & Status</h2>
+            <div class="shop-info" id="shopInfo">
+                <p><strong>Shop Name:</strong> <span id="displayName">Loading...</span></p>
+                <p><strong>Phone:</strong> <span id="displayPhone">Loading...</span></p>
             </div>
-            <a href="menu-manage.html" class="bg-white text-orange-600 px-5 py-3 rounded-2xl font-semibold text-sm shadow-md hover:bg-orange-50 transition flex items-center gap-2">
-                <i data-lucide="plus-circle" class="w-4 h-4"></i> Add New Menu Item
-            </a>
-        </div>
-
-        <!-- Quick Stats Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-            <!-- Stat 1 -->
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
-                <div class="w-14 h-14 bg-orange-50 text-orange-500 rounded-2xl flex items-center justify-center font-bold text-xl">
-                    📦
-                </div>
-                <div>
-                    <p class="text-gray-400 text-sm font-medium">Total Orders</p>
-                    <h3 class="text-2xl font-bold text-gray-800 mt-0.5">24</h3>
-                </div>
-            </div>
-
-            <!-- Stat 2 -->
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
-                <div class="w-14 h-14 bg-green-50 text-green-500 rounded-2xl flex items-center justify-center font-bold text-xl">
-                    💰
-                </div>
-                <div>
-                    <p class="text-gray-400 text-sm font-medium">Total Earnings</p>
-                    <h3 class="text-2xl font-bold text-gray-800 mt-0.5">$348.50</h3>
-                </div>
-            </div>
-
-            <!-- Stat 3 -->
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
-                <div class="w-14 h-14 bg-blue-50 text-blue-500 rounded-2xl flex items-center justify-center font-bold text-xl">
-                    🍔
-                </div>
-                <div>
-                    <p class="text-gray-400 text-sm font-medium">Active Menu Items</p>
-                    <h3 class="text-2xl font-bold text-gray-800 mt-0.5">12</h3>
-                </div>
+            <div class="status-toggle">
+                <label>Shop Status (Open/Close):</label>
+                <input type="checkbox" id="statusToggle" style="width: 20px; height: 20px;">
+                <span id="statusText" style="font-weight: bold;">Open</span>
             </div>
         </div>
 
-        <!-- Recent Orders Section -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden p-6">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-lg font-bold text-gray-800">Recent Customer Orders</h3>
-                <span class="text-xs bg-orange-100 text-orange-600 px-3 py-1 rounded-full font-semibold">Live Updates</span>
-            </div>
-
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse text-sm">
-                    <thead>
-                        <tr class="border-b text-gray-400 font-medium">
-                            <th class="pb-3">Order ID</th>
-                            <th class="pb-3">Customer Name</th>
-                            <th class="pb-3">Items</th>
-                            <th class="pb-3">Amount</th>
-                            <th class="pb-3">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y text-gray-600">
-                        <tr>
-                            <td class="py-4 font-semibold text-gray-800">#ORD-101</td>
-                            <td class="py-4">Rahim Uddin</td>
-                            <td class="py-4">Double Burger (2), Fries (1)</td>
-                            <td class="py-4 font-semibold text-gray-800">$23.47</td>
-                            <td class="py-4"><span class="bg-yellow-100 text-yellow-700 text-xs px-2.5 py-1 rounded-full font-medium">Pending</span></td>
-                        </tr>
-                        <tr>
-                            <td class="py-4 font-semibold text-gray-800">#ORD-102</td>
-                            <td class="py-4">Karim Ahmed</td>
-                            <td class="py-4">Chicken Wings (1)</td>
-                            <td class="py-4 font-semibold text-gray-800">$6.99</td>
-                            <td class="py-4"><span class="bg-green-100 text-green-700 text-xs px-2.5 py-1 rounded-full font-medium">Completed</span></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+        <!-- Time Update Card -->
+        <div class="card">
+            <h2>Opening & Closing Time Setup</h2>
+            <form id="timeForm">
+                <div class="form-group">
+                    <label>Opening Time</label>
+                    <input type="time" id="openingTime" required>
+                </div>
+                <div class="form-group">
+                    <label>Closing Time</label>
+                    <input type="time" id="closingTime" required>
+                </div>
+                <button type="submit" class="btn">Update Time</button>
+            </form>
         </div>
 
-    </main>
+        <!-- Menu / Item Upload Card -->
+        <div class="card">
+            <h2>Upload Menu / Food Item</h2>
+            <form id="menuForm">
+                <div class="form-group">
+                    <label>Item Name</label>
+                    <input type="text" id="itemName" placeholder="e.g. Chicken Burger" required>
+                </div>
+                <div class="form-group">
+                    <label>Price (BDT)</label>
+                    <input type="number" id="itemPrice" placeholder="e.g. 250" required>
+                </div>
+                <div class="form-group">
+                    <label>Item Image URL</label>
+                    <input type="text" id="itemImage" placeholder="Image link">
+                </div>
+                <button type="submit" class="btn">Add Item to Menu</button>
+            </form>
+        </div>
+    </div>
 
-    <!-- Footer -->
-    <footer class="bg-white border-t py-6 text-center text-gray-500 text-sm mt-10">
-        <p>&copy; 2026 FoodHub Vendor Portal. All rights reserved.</p>
-    </footer>
-
-    <!-- Initialize Lucide Icons -->
-    <script> lucide.createIcons(); </script>
+    <!-- JS File Link -->
+    <script src="home.js" defer></script>
 </body>
 </html>
-
