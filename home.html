@@ -29,7 +29,7 @@
         }
 
         .logo {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: bold;
             color: #ff6600;
         }
@@ -45,7 +45,7 @@
         }
 
         .container {
-            max-width: 900px;
+            max-width: 800px;
             margin: 30px auto;
             padding: 0 20px;
         }
@@ -60,13 +60,13 @@
 
         h2 {
             margin-bottom: 20px;
-            font-size: 20px;
+            font-size: 18px;
             color: #444;
         }
 
         .shop-info p {
-            margin-bottom: 10px;
-            font-size: 16px;
+            margin-bottom: 8px;
+            font-size: 15px;
         }
 
         .form-group {
@@ -78,37 +78,85 @@
             font-weight: 600;
             margin-bottom: 5px;
             font-size: 14px;
+            color: #555;
         }
 
-        .form-group input, .form-group select {
+        .form-group input {
             width: 100%;
             padding: 10px 12px;
             border: 1px solid #ddd;
             border-radius: 8px;
             outline: none;
+            font-size: 14px;
         }
 
         .btn {
             background: #ff6600;
             color: white;
             border: none;
-            padding: 12px 20px;
+            padding: 12px;
             border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
             width: 100%;
             transition: background 0.3s;
+            font-size: 15px;
         }
 
         .btn:hover {
             background: #e55c00;
         }
 
-        .status-toggle {
+        .status-box {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-top: 15px;
+            justify-content: space-between;
+            background: #f9f9f9;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .switch input { 
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #28a745;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
         }
     </style>
 </head>
@@ -120,23 +168,26 @@
     </header>
 
     <div class="container">
-        <!-- Shop Status & Profile Card -->
+        <!-- Shop Details & Status Card -->
         <div class="card">
-            <h2>Shop Control & Status</h2>
-            <div class="shop-info" id="shopInfo">
+            <h2>Shop Information & Status</h2>
+            <div class="shop-info" style="margin-bottom: 20px;">
                 <p><strong>Shop Name:</strong> <span id="displayName">Loading...</span></p>
-                <p><strong>Phone:</strong> <span id="displayPhone">Loading...</span></p>
+                <p><strong>Mobile:</strong> <span id="displayPhone">Loading...</span></p>
             </div>
-            <div class="status-toggle">
-                <label>Shop Status (Open/Close):</label>
-                <input type="checkbox" id="statusToggle" style="width: 20px; height: 20px;">
-                <span id="statusText" style="font-weight: bold;">Open</span>
+            
+            <div class="status-box">
+                <span style="font-weight: 600;">Shop Status: <span id="statusText" style="color: #28a745;">Open</span></span>
+                <label class="switch">
+                    <input type="checkbox" id="statusToggle">
+                    <span class="slider"></span>
+                </label>
             </div>
         </div>
 
-        <!-- Time Update Card -->
+        <!-- Opening & Closing Time Card -->
         <div class="card">
-            <h2>Opening & Closing Time Setup</h2>
+            <h2>Shop Timing Setup</h2>
             <form id="timeForm">
                 <div class="form-group">
                     <label>Opening Time</label>
@@ -146,32 +197,32 @@
                     <label>Closing Time</label>
                     <input type="time" id="closingTime" required>
                 </div>
-                <button type="submit" class="btn">Update Time</button>
+                <button type="submit" class="btn">Save Timing</button>
             </form>
         </div>
 
         <!-- Menu / Item Upload Card -->
         <div class="card">
-            <h2>Upload Menu / Food Item</h2>
+            <h2>Upload Food Item / Menu</h2>
             <form id="menuForm">
                 <div class="form-group">
                     <label>Item Name</label>
-                    <input type="text" id="itemName" placeholder="e.g. Chicken Burger" required>
+                    <input type="text" id="itemName" placeholder="e.g. Burger, Pizza" required>
                 </div>
                 <div class="form-group">
                     <label>Price (BDT)</label>
                     <input type="number" id="itemPrice" placeholder="e.g. 250" required>
                 </div>
                 <div class="form-group">
-                    <label>Item Image URL</label>
-                    <input type="text" id="itemImage" placeholder="Image link">
+                    <label>Image URL</label>
+                    <input type="text" id="itemImage" placeholder="Paste image link here">
                 </div>
-                <button type="submit" class="btn">Add Item to Menu</button>
+                <button type="submit" class="btn">Add to Menu</button>
             </form>
         </div>
     </div>
 
-    <!-- JS File Link -->
-    <script src="home.js" defer></script>
+    <!-- Home JS File -->
+    <script src="home.js"></script>
 </body>
 </html>
