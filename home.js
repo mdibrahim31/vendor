@@ -1,4 +1,4 @@
-// Supabase Configuration
+// Supabase Configuration (Apnar Supabase URL ebong Anon Key ekhane din)
 const SUPABASE_URL = 'https://kdqyompkfmnocpihfzdj.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtkcXlvbXBrZm1ub2NwaWhmemRqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMDkxOTIsImV4cCI6MjEwNDg4NTE5Mn0.4gmwMruyf54ZdXAADEAa9noLZD5JMFyLOzrszUIMVns';
 
@@ -6,12 +6,12 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const vendorId = localStorage.getItem('vendor_id');
 
-// Jodi vendor login na kore direct home.html-e ashe, tahole index.html-e pathiye dibe
+// Jodi vendor login na kore thake, tahole index.html (login page) e pathiye dibe
 if (!vendorId) {
-    window.location.href = 'home.html';
+    window.location.href = 'index.html';
 }
 
-// Page load hole vendor er data fetch kora
+// Vendor er data load kora
 async function loadVendorData() {
     const { data, error } = await supabase
         .from('vendors')
@@ -20,13 +20,18 @@ async function loadVendorData() {
         .single();
 
     if (data) {
-        document.getElementById('displayName').textContent = data.name;
-        document.getElementById('displayPhone').textContent = data.phone;
+        document.getElementById('displayName').textContent = data.name || 'N/A';
+        document.getElementById('displayPhone').textContent = data.phone || 'N/A';
         
-        // Status toggle set kora
+        // Status Toggle set kora
         const statusToggle = document.getElementById('statusToggle');
-        statusToggle.checked = data.status;
-        document.getElementById('statusText').textContent = data.status ? 'Open' : 'Closed';
+        const statusText = document.getElementById('statusText');
+        
+        // Database-e status 'active' ba boolean thakte pare. Ekhane boolean dhore kora holo:
+        const isOpen = data.status === 'active' || data.status === true;
+        statusToggle.checked = isOpen;
+        statusText.textContent = isOpen ? 'Open' : 'Closed';
+        statusText.style.color = isOpen ? '#28a745' : '#ff3333';
 
         // Time set kora
         if (data.opening_time) document.getElementById('openingTime').value = data.opening_time;
@@ -36,18 +41,21 @@ async function loadVendorData() {
 
 loadVendorData();
 
-// Status Change (Open/Close) handler
+// Status Change (Open/Closed) Handler
 document.getElementById('statusToggle').addEventListener('change', async (e) => {
-    const newStatus = e.target.checked;
-    document.getElementById('statusText').textContent = newStatus ? 'Open' : 'Closed';
+    const isChecked = e.target.checked;
+    const statusText = document.getElementById('statusText');
+    
+    statusText.textContent = isChecked ? 'Open' : 'Closed';
+    statusText.style.color = isChecked ? '#28a745' : '#ff3333';
 
     await supabase
         .from('vendors')
-        .update({ status: newStatus })
+        .update({ status: isChecked ? 'active' : 'closed' })
         .eq('id', vendorId);
 });
 
-// Time Update handler
+// Time Update Handler
 document.getElementById('timeForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const opening_time = document.getElementById('openingTime').value;
@@ -59,13 +67,13 @@ document.getElementById('timeForm').addEventListener('submit', async (e) => {
         .eq('id', vendorId);
 
     if (error) {
-        alert('Failed to update time!');
+        alert('Failed to update timing!');
     } else {
-        alert('Time updated successfully!');
+        alert('Timing updated successfully!');
     }
 });
 
-// Menu Item Upload handler
+// Menu Item Upload Handler (Make sure you have a `menu_items` table in Supabase)
 document.getElementById('menuForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const name = document.getElementById('itemName').value;
@@ -77,15 +85,16 @@ document.getElementById('menuForm').addEventListener('submit', async (e) => {
         .insert([{ vendor_id: vendorId, name, price, image_url }]);
 
     if (error) {
-        alert('Error adding item! (Make sure menu_items table exists in supabase)');
+        alert('Error adding item! (Check if menu_items table exists)');
+        console.error(error);
     } else {
-        alert('Item added successfully!');
+        alert('Menu item added successfully!');
         document.getElementById('menuForm').reset();
     }
 });
 
-// Logout handler (index.html e pathabe)
+// Logout Handler
 document.getElementById('logoutBtn').addEventListener('click', () => {
     localStorage.clear();
-    window.location.href = 'home.html';
+    window.location.href = 'index.html';
 });
