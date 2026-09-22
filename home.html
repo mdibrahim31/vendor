@@ -4,225 +4,115 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FoodHub - Vendor Dashboard</title>
-    <!-- Supabase CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background-color: #f4f5f7;
-            color: #333;
-        }
-
-        header {
-            background: #ffffff;
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-
-        .logo {
-            font-size: 22px;
-            font-weight: bold;
-            color: #ff6600;
-        }
-
-        .logout-btn {
-            background: #ff3333;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 30px auto;
-            padding: 0 20px;
-        }
-
-        .card {
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-            margin-bottom: 25px;
-        }
-
-        h2 {
-            margin-bottom: 20px;
-            font-size: 18px;
-            color: #444;
-        }
-
-        .shop-info p {
-            margin-bottom: 8px;
-            font-size: 15px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 5px;
-            font-size: 14px;
-            color: #555;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            outline: none;
-            font-size: 14px;
-        }
-
-        .btn {
-            background: #ff6600;
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-            transition: background 0.3s;
-            font-size: 15px;
-        }
-
-        .btn:hover {
-            background: #e55c00;
-        }
-
-        .status-box {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #f9f9f9;
-            padding: 12px 15px;
-            border-radius: 8px;
-            border: 1px solid #eee;
-        }
-
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 24px;
-        }
-
-        .switch input { 
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 24px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 16px;
-            width: 16px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-
-        input:checked + .slider {
-            background-color: #28a745;
-        }
-
-        input:checked + .slider:before {
-            transform: translateX(26px);
-        }
-    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Poppins', sans-serif; }</style>
 </head>
-<body>
+<body class="bg-gray-100 min-h-screen pb-12">
 
-    <header>
-        <div class="logo">FoodHub Dashboard</div>
-        <button class="logout-btn" id="logoutBtn">Logout</button>
+    <!-- Header / Navbar -->
+    <header class="bg-white shadow-md py-4 px-6 flex justify-between items-center sticky top-0 z-50">
+        <h1 class="text-2xl font-bold text-orange-500">FoodHub Dashboard</h1>
+        <button onclick="handleLogout()" class="bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded-xl transition">
+            Logout
+        </button>
     </header>
 
-    <div class="container">
-        <!-- Shop Details & Status Card -->
-        <div class="card">
-            <h2>Shop Information & Status</h2>
-            <div class="shop-info" style="margin-bottom: 20px;">
-                <p><strong>Shop Name:</strong> <span id="displayName">Loading...</span></p>
-                <p><strong>Mobile:</strong> <span id="displayPhone">Loading...</span></p>
-            </div>
+    <main class="max-w-4xl mx-auto px-4 mt-6 space-y-6">
+        
+        <!-- 1. Shop Information & Status Section -->
+        <div class="bg-white p-6 rounded-2xl shadow-md">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Shop Information & Settings</h2>
             
-            <div class="status-box">
-                <span style="font-weight: 600;">Shop Status: <span id="statusText" style="color: #28a745;">Open</span></span>
-                <label class="switch">
-                    <input type="checkbox" id="statusToggle">
-                    <span class="slider"></span>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Shop Name</label>
+                    <input type="text" id="shopName" class="w-full px-4 py-2 rounded-xl border focus:outline-orange-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Mobile Number</label>
+                    <input type="text" id="shopPhone" class="w-full px-4 py-2 rounded-xl border bg-gray-50" readonly>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Address</label>
+                    <input type="text" id="shopAddress" class="w-full px-4 py-2 rounded-xl border focus:outline-orange-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Cuisine / Types</label>
+                    <input type="text" id="shopTypes" placeholder="e.g. Fast Food, Biryani" class="w-full px-4 py-2 rounded-xl border focus:outline-orange-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Discount (%)</label>
+                    <input type="number" id="shopDiscount" class="w-full px-4 py-2 rounded-xl border focus:outline-orange-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Profile Image URL</label>
+                    <input type="text" id="shopImage" class="w-full px-4 py-2 rounded-xl border focus:outline-orange-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Latitude</label>
+                    <input type="number" step="any" id="shopLat" class="w-full px-4 py-2 rounded-xl border focus:outline-orange-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Longitude</label>
+                    <input type="number" step="any" id="shopLong" class="w-full px-4 py-2 rounded-xl border focus:outline-orange-500">
+                </div>
+            </div>
+
+            <!-- Toggles (Status & Boost) -->
+            <div class="flex flex-wrap gap-6 items-center border-t pt-4 mb-4">
+                <label class="flex items-center cursor-pointer">
+                    <span class="mr-3 font-medium text-gray-700">Shop Status (Open/Close):</span>
+                    <input type="checkbox" id="shopStatusToggle" class="sr-only peer">
+                    <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500 relative"></div>
+                </label>
+
+                <label class="flex items-center cursor-pointer">
+                    <span class="mr-3 font-medium text-gray-700">Boost Status:</span>
+                    <input type="checkbox" id="shopBoostToggle" class="sr-only peer">
+                    <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500 relative"></div>
                 </label>
             </div>
+
+            <button onclick="updateVendorInfo()" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-xl transition">
+                Save Shop Changes
+            </button>
         </div>
 
-        <!-- Opening & Closing Time Card -->
-        <div class="card">
-            <h2>Shop Timing Setup</h2>
-            <form id="timeForm">
-                <div class="form-group">
-                    <label>Opening Time</label>
-                    <input type="time" id="openingTime" required>
+        <!-- 2. Menu Section (Upload / Manage Food Items) -->
+        <div class="bg-white p-6 rounded-2xl shadow-md">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Upload Food Item / Menu</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <input type="text" id="foodName" placeholder="Food Name" class="px-4 py-2 rounded-xl border focus:outline-orange-500">
+                <input type="number" id="foodPrice" placeholder="Price (Tk)" class="px-4 py-2 rounded-xl border focus:outline-orange-500">
+                <input type="text" id="foodImage" placeholder="Food Image URL" class="px-4 py-2 rounded-xl border focus:outline-orange-500">
+            </div>
+            <button onclick="addFoodItem()" class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 rounded-xl transition">
+                Add to Menu
+            </button>
+            
+            <div class="mt-6">
+                <h3 class="font-bold text-gray-700 mb-2">My Menu List</h3>
+                <div id="menuListContainer" class="space-y-2">
+                    <!-- Dynamic Menu Items will load here -->
+                    <p class="text-gray-500 text-sm">Loading menu...</p>
                 </div>
-                <div class="form-group">
-                    <label>Closing Time</label>
-                    <input type="time" id="closingTime" required>
-                </div>
-                <button type="submit" class="btn">Save Timing</button>
-            </form>
+            </div>
         </div>
 
-        <!-- Menu / Item Upload Card -->
-        <div class="card">
-            <h2>Upload Food Item / Menu</h2>
-            <form id="menuForm">
-                <div class="form-group">
-                    <label>Item Name</label>
-                    <input type="text" id="itemName" placeholder="e.g. Burger, Pizza" required>
-                </div>
-                <div class="form-group">
-                    <label>Price (BDT)</label>
-                    <input type="number" id="itemPrice" placeholder="e.g. 250" required>
-                </div>
-                <div class="form-group">
-                    <label>Image URL</label>
-                    <input type="text" id="itemImage" placeholder="Paste image link here">
-                </div>
-                <button type="submit" class="btn">Add to Menu</button>
-            </form>
+        <!-- 3. Order Section -->
+        <div class="bg-white p-6 rounded-2xl shadow-md">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Incoming Orders</h2>
+            <div id="ordersContainer" class="space-y-3">
+                <!-- Dynamic Orders will load here -->
+                <p class="text-gray-500 text-sm">No new orders found.</p>
+            </div>
         </div>
-    </div>
 
-    <!-- Home JS File -->
+    </main>
+
+    <!-- Supabase CDN & Dashboard Logic JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="home.js"></script>
 </body>
 </html>
